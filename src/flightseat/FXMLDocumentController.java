@@ -77,13 +77,28 @@ public class FXMLDocumentController implements Initializable {
         dialogController.setSeatNum(seatArray[result.height][result.width].getSeatNumber());
         dialogController.setClassType(seatArray[result.height][result.width].getClassType());
         dialogController.setSeatType(seatArray[result.height][result.width].getSeatType());
-//        dialogController.setAppMainObservableList(tvObservableList);
+        dialogController.setName(seatArray[result.height][result.width].getPassenger().getPassengerName());
+        dialogController.setAge(seatArray[result.height][result.width].getPassenger().getAge());
+        dialogController.init();
 
         Scene scene = new Scene(parent);
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setScene(scene);
         stage.showAndWait();
+        if(dialogController.getSubmit())
+        {
+            seatArray[result.height][result.width].setPassenger(new Passenger(dialogController.getName(), dialogController.getAge()));
+            switch(dialogController.getAge())
+            {
+                case "Adult":
+                     btnArry[result.height][result.width].setText("A");
+                     break;
+                case "Child":
+                     btnArry[result.height][result.width].setText("C");
+                     break;
+            }           
+        }
     }
     
     
@@ -105,6 +120,12 @@ public class FXMLDocumentController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        createNewSeatMap();
+        initialButtonArray();
+    } 
+    
+    public void initialButtonArray()
+    {
         btnArry = new Button[][]
         {
             {A1Btn, B1Btn, C1Btn, D1Btn, E1Btn, F1Btn},
@@ -120,8 +141,26 @@ public class FXMLDocumentController implements Initializable {
             {A11Btn, B11Btn, C11Btn, D11Btn, E11Btn, F11Btn},
             {A12Btn, B12Btn, C12Btn, D12Btn, E12Btn, F12Btn}
         };
-        createNewSeatMap();
-    } 
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 6; j++) {
+                if(seatArray[i][j].getPassenger().getPassengerName()==null || seatArray[i][j].getPassenger().getPassengerName().equals(""))
+                {
+                    btnArry[i][j].setText("*");
+                } else
+                {
+                    switch(seatArray[i][j].getPassenger().getAge())
+                    {
+                        case "Adult":
+                            btnArry[i][j].setText("A");
+                            break;
+                        case "Child":
+                            btnArry[i][j].setText("C");
+                            break;
+                    }
+                }
+            }
+        }
+    }
     
     public void createNewSeatMap()
     {

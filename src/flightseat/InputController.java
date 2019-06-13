@@ -10,18 +10,20 @@ import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
  *
  * @author allen
  */
-public class InputController implements Initializable {
+public class InputController {
 
     @FXML
     private RadioButton adultRb;
@@ -45,14 +47,18 @@ public class InputController implements Initializable {
     private String seatNum;
     private String classType;
     private String seatType;
+    private String name;
+    private String age;
     private boolean submit = false;
-    /**
-     * Initializes the controller class.
-     */
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        
-    }    
+    
+    public void init()
+    {
+        adultRb.setToggleGroup(group);
+        adultRb.setSelected(true);
+        childRb.setToggleGroup(group);
+    }
+
+
     
     public void setSeatNum(String seatNum)
     {
@@ -72,6 +78,32 @@ public class InputController implements Initializable {
         seatTypeTxt.setText(seatType);
     }
     
+    public void setName(String name)
+    {
+        this.name = name;
+        passengerNameTxt.setText(name);
+    }
+    
+    public void setAge(String age)
+    {
+        this.age = age;
+        switch(age)
+        {
+            case "Adult":
+                adultRb.setSelected(true);
+                adultRb.requestFocus();
+                break;
+            case "Child":
+                childRb.setSelected(true);
+                childRb.requestFocus();
+                break;
+            case "":
+                adultRb.setSelected(true);
+                adultRb.requestFocus();
+                break;
+        }
+    }
+    
     public String getSeatNum()
     {
         return seatNum;
@@ -87,6 +119,16 @@ public class InputController implements Initializable {
         return seatType;
     }
     
+    public String getName()
+    {
+        return name;
+    }
+    
+    public String getAge()
+    {
+        return age;
+    }
+    
     public boolean getSubmit()
     {
         return submit;
@@ -94,6 +136,16 @@ public class InputController implements Initializable {
 
     @FXML
     private void submitBtnClick(ActionEvent event) {
+        submit = true;
+        RadioButton selectedRadioButton = (RadioButton) group.getSelectedToggle();
+        age = selectedRadioButton.getText();
+        name = passengerNameTxt.getText();
+        closeStage(event);
     }
-            
+    
+    private void closeStage(ActionEvent event) {
+        Node  source = (Node)  event.getSource(); 
+        Stage stage  = (Stage) source.getScene().getWindow();
+        stage.close();
+    }
 }
