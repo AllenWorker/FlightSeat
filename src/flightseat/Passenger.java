@@ -15,6 +15,12 @@ public class Passenger {
     private final SimpleStringProperty name = new SimpleStringProperty("");
     private final SimpleStringProperty age = new SimpleStringProperty("");
     
+    public Passenger()
+    {
+        setPassengerName("");
+        setAge("");
+    }
+    
     public Passenger(String name, String age)
     {
         setPassengerName(name);

@@ -6,13 +6,19 @@
 package flightseat;
 
 import java.awt.Dimension;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 /**
  *
@@ -58,14 +64,26 @@ public class FXMLDocumentController implements Initializable {
     @FXML   private Button E12Btn;    @FXML   private Button F12Btn;    
     
     Button[][] btnArry;
+    Seat[][] seatArray;
     
     @FXML
-    private void handleButtonAction(ActionEvent event) {
+    private void handleButtonAction(ActionEvent event) throws IOException {
         Button clickBtn = (Button)event.getSource();
         
-        System.out.println(clickBtn.getId());
         Dimension result = searchButton(btnArry, clickBtn);
-        System.out.println(btnArry[result.height][result.width].getId());
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Input.fxml"));
+        Parent parent = fxmlLoader.load();
+        InputController dialogController = fxmlLoader.<InputController>getController();
+        dialogController.setSeatNum(seatArray[result.height][result.width].getSeatNumber());
+        dialogController.setClassType(seatArray[result.height][result.width].getClassType());
+        dialogController.setSeatType(seatArray[result.height][result.width].getSeatType());
+//        dialogController.setAppMainObservableList(tvObservableList);
+
+        Scene scene = new Scene(parent);
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setScene(scene);
+        stage.showAndWait();
     }
     
     
@@ -102,7 +120,65 @@ public class FXMLDocumentController implements Initializable {
             {A11Btn, B11Btn, C11Btn, D11Btn, E11Btn, F11Btn},
             {A12Btn, B12Btn, C12Btn, D12Btn, E12Btn, F12Btn}
         };
-        
-    }    
+        createNewSeatMap();
+    } 
+    
+    public void createNewSeatMap()
+    {
+        seatArray = new Seat[12][6];
+        String classType;
+        String seatType;
+        String initial;
+        String seatNum;
+        Passenger emptyPassenger = new Passenger();
+        for (int i = 0; i < 12; i++) {
+            if(i<2)
+                {
+                    classType = "First Class";
+                }
+                else if (i>=2 && i<6)
+                {
+                    classType = "Business Class";
+                }
+                else
+                {
+                    classType = "Economy Class";
+                }
+            for (int j = 0; j < 6; j++) {
+                switch(j){
+                    case 0:
+                        initial = "A";
+                        seatType = "Window";
+                        break;
+                    case 1:
+                        initial = "B";
+                        seatType = "Middle";
+                        break;
+                    case 2:
+                        initial = "C";
+                        seatType = "Aisle";
+                        break;
+                    case 3:
+                        initial = "D";
+                        seatType = "Aisle";
+                        break;
+                    case 4:
+                        initial = "E";
+                        seatType = "Middle";
+                        break;
+                    case 5:
+                        initial = "F";
+                        seatType = "Window";
+                        break;
+                    default:
+                        initial = "!";
+                        seatType = "Error";
+                        break;
+                }
+                seatNum = initial+(i+1);
+                seatArray[i][j] = new Seat(seatNum, classType, seatType, emptyPassenger);
+            }
+        }
+    }
     
 }
