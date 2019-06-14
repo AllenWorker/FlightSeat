@@ -17,8 +17,8 @@ import javafx.beans.property.SimpleStringProperty;
  * @author allen
  */
 public class Passenger implements Serializable {
-    private transient SimpleStringProperty name = new SimpleStringProperty("");
-    private transient SimpleStringProperty age = new SimpleStringProperty("");
+    private String name = "";
+    private String age = "";
     
     public Passenger()
     {
@@ -32,45 +32,23 @@ public class Passenger implements Serializable {
         setAge(age);
     }
     
-    
-    public SimpleStringProperty passengerNameProperty() 
+    public String getPassengerName() 
     {
         return name;
     }
     
-    public SimpleStringProperty ageProperty() 
+    public String getAge() 
     {
         return age;
     }
     
-    public String getPassengerName() 
-    {
-        return name.get();
-    }
-    
-    public String getAge() 
-    {
-        return age.get();
-    }
-    
     public final void setPassengerName(String name) 
     {
-        this.name.set(name);
+        this.name = name;
     }
     
     public final void setAge(String age) 
     {
-        this.age.set(age);
-    }
-    
-     private void writeObject(ObjectOutputStream s) throws IOException {
-        s.defaultWriteObject();
-        s.writeUTF(getPassengerName());
-        s.writeUTF(getAge());
-    }
-    
-    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
-        name = new SimpleStringProperty(s.readUTF());
-        age = new SimpleStringProperty(s.readUTF());
+        this.age = age;
     }
 }
