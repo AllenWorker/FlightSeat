@@ -5,15 +5,20 @@
  */
 package flightseat;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 /**
  *
  * @author allen
  */
-public class Passenger {
-    private final SimpleStringProperty name = new SimpleStringProperty("");
-    private final SimpleStringProperty age = new SimpleStringProperty("");
+public class Passenger implements Serializable {
+    private transient SimpleStringProperty name = new SimpleStringProperty("");
+    private transient SimpleStringProperty age = new SimpleStringProperty("");
     
     public Passenger()
     {
@@ -56,5 +61,16 @@ public class Passenger {
     public final void setAge(String age) 
     {
         this.age.set(age);
+    }
+    
+     private void writeObject(ObjectOutputStream s) throws IOException {
+        s.defaultWriteObject();
+        s.writeUTF(getPassengerName());
+        s.writeUTF(getAge());
+    }
+    
+    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
+        name = new SimpleStringProperty(s.readUTF());
+        age = new SimpleStringProperty(s.readUTF());
     }
 }

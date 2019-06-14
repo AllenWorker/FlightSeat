@@ -5,6 +5,10 @@
  */
 package flightseat;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -12,11 +16,11 @@ import javafx.beans.property.SimpleStringProperty;
  *
  * @author allen
  */
-public class Seat {
-    private final SimpleStringProperty seatNum = new SimpleStringProperty("");
-    private final SimpleStringProperty classType = new SimpleStringProperty("");
-    private final SimpleStringProperty seatType = new SimpleStringProperty("");
-    private final SimpleObjectProperty<Passenger> passenger = new SimpleObjectProperty<Passenger>();
+public class Seat  implements Serializable{
+    private transient SimpleStringProperty seatNum = new SimpleStringProperty("");
+    private transient SimpleStringProperty classType = new SimpleStringProperty("");
+    private transient SimpleStringProperty seatType = new SimpleStringProperty("");
+    private transient SimpleObjectProperty<Passenger> passenger = new SimpleObjectProperty<Passenger>();
     
     public Seat(String seatNum, String classType, String seatType, Passenger passenger)
     {
@@ -85,5 +89,20 @@ public class Seat {
     public final void setPassenger(Passenger passenger)
     {
         this.passenger.set(passenger);
+    }
+    
+    private void writeObject(ObjectOutputStream s) throws IOException {
+        s.defaultWriteObject();
+        s.writeUTF(getSeatNumber());
+        s.writeUTF(getClassType());
+        s.writeUTF(getSeatType());
+        s.writeObject(getPassenger());
+    }
+    
+    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
+        seatNum = new SimpleStringProperty(s.readUTF());
+        classType = new SimpleStringProperty(s.readUTF());
+        seatType = new SimpleStringProperty(s.readUTF());
+        passenger = new SimpleObjectProperty<Passenger>();
     }
 }

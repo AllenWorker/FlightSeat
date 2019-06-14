@@ -6,7 +6,12 @@
 package flightseat;
 
 import java.awt.Dimension;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -15,6 +20,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Modality;
@@ -120,7 +126,7 @@ public class FXMLDocumentController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        createNewSeatMap();
+        readData();
         initialButtonArray();
     } 
     
@@ -218,6 +224,68 @@ public class FXMLDocumentController implements Initializable {
                 seatArray[i][j] = new Seat(seatNum, classType, seatType, emptyPassenger);
             }
         }
+    }
+    
+    public void readData()
+    {
+        try
+        {
+            File savedata = new File("savedata.dat");
+            if(!savedata.exists())
+            {
+              try
+              {
+                  createNewSeatMap();
+                  FileOutputStream outputFile = new FileOutputStream(savedata);
+                  ObjectOutputStream outputObj = new ObjectOutputStream(outputFile);
+                  outputObj.writeObject(seatArray);
+                  outputObj.close();
+                  outputFile.close();
+                  Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                  alert.setTitle("New data");
+                  alert.setHeaderText(null);
+                  alert.setContentText("Data doesn't exist! Creating new Data!");
+
+                  alert.showAndWait();
+                  FileInputStream inputFile = new FileInputStream(savedata);
+                  ObjectInputStream inputObj = new ObjectInputStream(inputFile);
+                  seatArray = (Seat[][]) inputObj.readObject();
+                  inputObj.close();
+                  inputFile.close();
+              }
+              catch (IOException i)
+              {
+                  Alert alert = new Alert(Alert.AlertType.ERROR);
+                  alert.setTitle("Creating New Data Filed!");
+                  alert.setHeaderText(null);
+                  alert.setContentText("Filed to create savedata.dat!" + i);
+                  alert.showAndWait();
+              }
+            }
+            FileInputStream inputFile = new FileInputStream(savedata);
+            ObjectInputStream inputObj = new ObjectInputStream(inputFile);
+            seatArray = (Seat[][]) inputObj.readObject();
+            inputObj.close();
+            inputFile.close();
+
+        } 
+        catch (IOException i)
+        {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Reading New Data Filed!");
+            alert.setHeaderText(null);
+            alert.setContentText("Filed to read savedata.dat!");
+            alert.showAndWait();
+        }
+        catch (ClassNotFoundException c)
+        {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Class Not Found!");
+            alert.setHeaderText(null);
+            alert.setContentText("Class not found!");
+            alert.showAndWait();
+        }
+        
     }
     
 }
