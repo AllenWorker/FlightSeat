@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.RandomAccessFile;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -77,6 +78,8 @@ public class FXMLDocumentController implements Initializable {
         Button clickBtn = (Button)event.getSource();
         
         Dimension result = searchButton(btnArry, clickBtn);
+        System.out.println(seatArray[result.height][result.width].toString().length());
+        System.out.println(seatArray[result.height][result.width].toString());
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Input.fxml"));
         Parent parent = fxmlLoader.load();
         InputController dialogController = fxmlLoader.<InputController>getController();
@@ -95,13 +98,19 @@ public class FXMLDocumentController implements Initializable {
         if(dialogController.getSubmit())
         {
             seatArray[result.height][result.width].setPassenger(new Passenger(dialogController.getName(), dialogController.getAge()));
+            int location = 4*(6*result.height + (result.width));
+            File seatmap = new File("seatmap.txt");
             switch(dialogController.getAge())
             {
                 case "Adult":
                      btnArry[result.height][result.width].setText("A");
+                     seatmap = new File("seatmap.txt");
+                     writeToRandomAccessFile(seatmap, location, "A");
                      break;
                 case "Child":
                      btnArry[result.height][result.width].setText("C");
+                     seatmap = new File("seatmap.txt");
+                     writeToRandomAccessFile(seatmap, location, "C");
                      break;
             }           
         }
@@ -128,6 +137,7 @@ public class FXMLDocumentController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         readData();
         initialButtonArray();
+        System.out.println(seatArray.toString().length());
     } 
     
     public void initialButtonArray()
@@ -231,6 +241,7 @@ public class FXMLDocumentController implements Initializable {
         try
         {
             File savedata = new File("savedata.dat");
+            File seatmap = new File("seatmap.txt");
             if(!savedata.exists())
             {
               try
@@ -262,6 +273,24 @@ public class FXMLDocumentController implements Initializable {
                   alert.showAndWait();
               }
             }
+            if(!seatmap.exists())
+            {
+                  createNewSeatMap();
+                  int position = 0;
+                  String result = "";
+                  for (int i = 0; i < 12; i++) {
+                    for (int j = 0; j < 6; j++) {
+                        result += (seatArray[i][j].toString() + ",");
+                    }
+//                    result += "\n";
+                }
+                  writeToRandomAccessFile(seatmap, position, result);
+                  Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                  alert.setTitle("New map");
+                  alert.setHeaderText(null);
+                  alert.setContentText("SeatMap doesn't exist! Creating new Map!");
+                  alert.showAndWait();
+            }
             FileInputStream inputFile = new FileInputStream(savedata);
             ObjectInputStream inputObj = new ObjectInputStream(inputFile);
             seatArray = (Seat[][]) inputObj.readObject();
@@ -288,4 +317,32 @@ public class FXMLDocumentController implements Initializable {
         
     }
     
+    private static void writeToRandomAccessFile(File file, int position, String record) { 
+		try { 
+			RandomAccessFile fileStore = new RandomAccessFile(file, "rw"); // read write mode
+			// moves file pointer to position specified 
+			fileStore.seek(position); 
+			// write String to RandomAccessFile 
+			fileStore.writeChars(record);
+			fileStore.close(); 
+                    } catch (IOException e) { 
+			e.printStackTrace(); 
+                    }  
+    }
+    
+    private static char readFromRandomAccessFile(File file, int position) { 
+		char record = 'E'; 
+		try { 
+			RandomAccessFile fileStore = new RandomAccessFile(file, "r"); // read mode
+			// moves file pointer to position specified 
+			fileStore.seek(position); 
+			// read String from RandomAccessFile 
+			record = fileStore.readChar(); 
+			//record = fileStore.readLine();
+			fileStore.close(); 
+			} catch (IOException e) { 
+				e.printStackTrace(); 
+			} 
+		return record; 
+	}
 }

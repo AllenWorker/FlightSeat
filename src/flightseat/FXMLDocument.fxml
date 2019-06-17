@@ -462,6 +462,7 @@
                   <Label alignment="CENTER" prefHeight="91.0" prefWidth="116.0" text="F" textAlignment="CENTER" GridPane.columnIndex="6" />
                </children>
             </GridPane>
+            <Button mnemonicParsing="false" prefHeight="23.0" prefWidth="96.0" text="Search" />
          </children>
       </GridPane>
    </children>

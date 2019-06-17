@@ -5,12 +5,9 @@
  */
 package flightseat;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+
 import java.io.Serializable;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+
 
 /**
  *
@@ -73,5 +70,16 @@ public class Seat  implements Serializable{
         this.passenger = passenger;
     }
     
-   
+    @Override
+    public String toString()
+    {
+        if (passenger.getAge().equals(""))
+        {
+            return "*";
+        }
+        else 
+        {
+            return passenger.getAge();
+        }
+    }
 }
