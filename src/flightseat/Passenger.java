@@ -5,15 +5,22 @@
  */
 package flightseat;
 
-import javafx.beans.property.SimpleStringProperty;
+
+import java.io.Serializable;
 
 /**
  *
  * @author allen
  */
-public class Passenger {
-    private final SimpleStringProperty name = new SimpleStringProperty("");
-    private final SimpleStringProperty age = new SimpleStringProperty("");
+public class Passenger implements Serializable {
+    private String name = "";
+    private String age = "";
+    
+    public Passenger()
+    {
+        setPassengerName("");
+        setAge("");
+    }
     
     public Passenger(String name, String age)
     {
@@ -21,34 +28,23 @@ public class Passenger {
         setAge(age);
     }
     
-    
-    public SimpleStringProperty passengerNameProperty() 
+    public String getPassengerName() 
     {
         return name;
     }
     
-    public SimpleStringProperty ageProperty() 
+    public String getAge() 
     {
         return age;
     }
     
-    public String getPassengerName() 
-    {
-        return name.get();
-    }
-    
-    public String getAge() 
-    {
-        return age.get();
-    }
-    
     public final void setPassengerName(String name) 
     {
-        this.name.set(name);
+        this.name = name;
     }
     
     public final void setAge(String age) 
     {
-        this.age.set(age);
+        this.age = age;
     }
 }

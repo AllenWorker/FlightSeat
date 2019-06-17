@@ -5,18 +5,19 @@
  */
 package flightseat;
 
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+
+import java.io.Serializable;
+
 
 /**
  *
  * @author allen
  */
-public class Seat {
-    private final SimpleStringProperty seatNum = new SimpleStringProperty("");
-    private final SimpleStringProperty classType = new SimpleStringProperty("");
-    private final SimpleStringProperty seatType = new SimpleStringProperty("");
-    private final SimpleObjectProperty<Passenger> passenger = new SimpleObjectProperty<Passenger>();
+public class Seat  implements Serializable{
+    private String seatNum = "";
+    private String classType = "";
+    private String seatType = "";
+    private Passenger passenger = new Passenger();
     
     public Seat(String seatNum, String classType, String seatType, Passenger passenger)
     {
@@ -27,63 +28,58 @@ public class Seat {
     }
     
     
-    public SimpleStringProperty seatNumberProperty() 
+    
+    
+    public String getSeatNumber() 
     {
         return seatNum;
     }
     
-    public SimpleStringProperty classTypeProperty() 
+    public String getClassType() 
     {
         return classType;
     }
     
-    public SimpleStringProperty seatTypeProperty() 
+    public String getSeatType() 
     {
         return seatType;
     }
     
-    public SimpleObjectProperty passengerProperty()
+    public Passenger getPassenger()
     {
         return passenger;
     }
     
-    public String getSeatNumber() 
-    {
-        return seatNum.get();
-    }
-    
-    public String getClassType() 
-    {
-        return classType.get();
-    }
-    
-    public String getSeatType() 
-    {
-        return seatType.get();
-    }
-    
-    public Passenger getPassenger()
-    {
-        return passenger.get();
-    }
-    
     public final void setSeatNumber(String seatNum) 
     {
-        this.seatNum.set(seatNum);
+        this.seatNum = seatNum;
     }
     
     public final void setClassType(String classType) 
     {
-        this.classType.set(classType);
+        this.classType = classType;
     }
     
     public final void setSeatType(String seatType) 
     {
-        this.seatType.set(seatType);
+        this.seatType = seatType;
     }
     
     public final void setPassenger(Passenger passenger)
     {
-        this.passenger.set(passenger);
+        this.passenger = passenger;
+    }
+    
+    @Override
+    public String toString()
+    {
+        if (passenger.getAge().equals(""))
+        {
+            return "*";
+        }
+        else 
+        {
+            return passenger.getAge();
+        }
     }
 }

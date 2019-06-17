@@ -6,13 +6,26 @@
 package flightseat;
 
 import java.awt.Dimension;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.RandomAccessFile;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 /**
  *
@@ -58,14 +71,49 @@ public class FXMLDocumentController implements Initializable {
     @FXML   private Button E12Btn;    @FXML   private Button F12Btn;    
     
     Button[][] btnArry;
+    Seat[][] seatArray;
     
     @FXML
-    private void handleButtonAction(ActionEvent event) {
+    private void handleButtonAction(ActionEvent event) throws IOException {
         Button clickBtn = (Button)event.getSource();
         
-        System.out.println(clickBtn.getId());
         Dimension result = searchButton(btnArry, clickBtn);
-        System.out.println(btnArry[result.height][result.width].getId());
+        System.out.println(seatArray[result.height][result.width].toString().length());
+        System.out.println(seatArray[result.height][result.width].toString());
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Input.fxml"));
+        Parent parent = fxmlLoader.load();
+        InputController dialogController = fxmlLoader.<InputController>getController();
+        dialogController.setSeatNum(seatArray[result.height][result.width].getSeatNumber());
+        dialogController.setClassType(seatArray[result.height][result.width].getClassType());
+        dialogController.setSeatType(seatArray[result.height][result.width].getSeatType());
+        dialogController.setName(seatArray[result.height][result.width].getPassenger().getPassengerName());
+        dialogController.setAge(seatArray[result.height][result.width].getPassenger().getAge());
+        dialogController.init();
+
+        Scene scene = new Scene(parent);
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setScene(scene);
+        stage.showAndWait();
+        if(dialogController.getSubmit())
+        {
+            seatArray[result.height][result.width].setPassenger(new Passenger(dialogController.getName(), dialogController.getAge()));
+            int location = 4*(6*result.height + (result.width));
+            File seatmap = new File("seatmap.txt");
+            switch(dialogController.getAge())
+            {
+                case "Adult":
+                     btnArry[result.height][result.width].setText("A");
+                     seatmap = new File("seatmap.txt");
+                     writeToRandomAccessFile(seatmap, location, "A");
+                     break;
+                case "Child":
+                     btnArry[result.height][result.width].setText("C");
+                     seatmap = new File("seatmap.txt");
+                     writeToRandomAccessFile(seatmap, location, "C");
+                     break;
+            }           
+        }
     }
     
     
@@ -87,6 +135,13 @@ public class FXMLDocumentController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        readData();
+        initialButtonArray();
+        System.out.println(seatArray.toString().length());
+    } 
+    
+    public void initialButtonArray()
+    {
         btnArry = new Button[][]
         {
             {A1Btn, B1Btn, C1Btn, D1Btn, E1Btn, F1Btn},
@@ -102,7 +157,192 @@ public class FXMLDocumentController implements Initializable {
             {A11Btn, B11Btn, C11Btn, D11Btn, E11Btn, F11Btn},
             {A12Btn, B12Btn, C12Btn, D12Btn, E12Btn, F12Btn}
         };
-        
-    }    
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 6; j++) {
+                if(seatArray[i][j].getPassenger().getPassengerName()==null || seatArray[i][j].getPassenger().getPassengerName().equals(""))
+                {
+                    btnArry[i][j].setText("*");
+                } else
+                {
+                    switch(seatArray[i][j].getPassenger().getAge())
+                    {
+                        case "Adult":
+                            btnArry[i][j].setText("A");
+                            break;
+                        case "Child":
+                            btnArry[i][j].setText("C");
+                            break;
+                    }
+                }
+            }
+        }
+    }
     
+    public void createNewSeatMap()
+    {
+        seatArray = new Seat[12][6];
+        String classType;
+        String seatType;
+        String initial;
+        String seatNum;
+        Passenger emptyPassenger = new Passenger();
+        for (int i = 0; i < 12; i++) {
+            if(i<2)
+                {
+                    classType = "First Class";
+                }
+                else if (i>=2 && i<6)
+                {
+                    classType = "Business Class";
+                }
+                else
+                {
+                    classType = "Economy Class";
+                }
+            for (int j = 0; j < 6; j++) {
+                switch(j){
+                    case 0:
+                        initial = "A";
+                        seatType = "Window";
+                        break;
+                    case 1:
+                        initial = "B";
+                        seatType = "Middle";
+                        break;
+                    case 2:
+                        initial = "C";
+                        seatType = "Aisle";
+                        break;
+                    case 3:
+                        initial = "D";
+                        seatType = "Aisle";
+                        break;
+                    case 4:
+                        initial = "E";
+                        seatType = "Middle";
+                        break;
+                    case 5:
+                        initial = "F";
+                        seatType = "Window";
+                        break;
+                    default:
+                        initial = "!";
+                        seatType = "Error";
+                        break;
+                }
+                seatNum = initial+(i+1);
+                seatArray[i][j] = new Seat(seatNum, classType, seatType, emptyPassenger);
+            }
+        }
+    }
+    
+    public void readData()
+    {
+        try
+        {
+            File savedata = new File("savedata.dat");
+            File seatmap = new File("seatmap.txt");
+            if(!savedata.exists())
+            {
+              try
+              {
+                  createNewSeatMap();
+                  FileOutputStream outputFile = new FileOutputStream(savedata);
+                  ObjectOutputStream outputObj = new ObjectOutputStream(outputFile);
+                  outputObj.writeObject(seatArray);
+                  outputObj.close();
+                  outputFile.close();
+                  Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                  alert.setTitle("New data");
+                  alert.setHeaderText(null);
+                  alert.setContentText("Data doesn't exist! Creating new Data!");
+
+                  alert.showAndWait();
+                  FileInputStream inputFile = new FileInputStream(savedata);
+                  ObjectInputStream inputObj = new ObjectInputStream(inputFile);
+                  seatArray = (Seat[][]) inputObj.readObject();
+                  inputObj.close();
+                  inputFile.close();
+              }
+              catch (IOException i)
+              {
+                  Alert alert = new Alert(Alert.AlertType.ERROR);
+                  alert.setTitle("Creating New Data Filed!");
+                  alert.setHeaderText(null);
+                  alert.setContentText("Filed to create savedata.dat!" + i);
+                  alert.showAndWait();
+              }
+            }
+            if(!seatmap.exists())
+            {
+                  createNewSeatMap();
+                  int position = 0;
+                  String result = "";
+                  for (int i = 0; i < 12; i++) {
+                    for (int j = 0; j < 6; j++) {
+                        result += (seatArray[i][j].toString() + ",");
+                    }
+//                    result += "\n";
+                }
+                  writeToRandomAccessFile(seatmap, position, result);
+                  Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                  alert.setTitle("New map");
+                  alert.setHeaderText(null);
+                  alert.setContentText("SeatMap doesn't exist! Creating new Map!");
+                  alert.showAndWait();
+            }
+            FileInputStream inputFile = new FileInputStream(savedata);
+            ObjectInputStream inputObj = new ObjectInputStream(inputFile);
+            seatArray = (Seat[][]) inputObj.readObject();
+            inputObj.close();
+            inputFile.close();
+
+        } 
+        catch (IOException i)
+        {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Reading New Data Filed!");
+            alert.setHeaderText(null);
+            alert.setContentText("Filed to read savedata.dat!");
+            alert.showAndWait();
+        }
+        catch (ClassNotFoundException c)
+        {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Class Not Found!");
+            alert.setHeaderText(null);
+            alert.setContentText("Class not found!");
+            alert.showAndWait();
+        }
+        
+    }
+    
+    private static void writeToRandomAccessFile(File file, int position, String record) { 
+		try { 
+			RandomAccessFile fileStore = new RandomAccessFile(file, "rw"); // read write mode
+			// moves file pointer to position specified 
+			fileStore.seek(position); 
+			// write String to RandomAccessFile 
+			fileStore.writeChars(record);
+			fileStore.close(); 
+                    } catch (IOException e) { 
+			e.printStackTrace(); 
+                    }  
+    }
+    
+    private static char readFromRandomAccessFile(File file, int position) { 
+		char record = 'E'; 
+		try { 
+			RandomAccessFile fileStore = new RandomAccessFile(file, "r"); // read mode
+			// moves file pointer to position specified 
+			fileStore.seek(position); 
+			// read String from RandomAccessFile 
+			record = fileStore.readChar(); 
+			//record = fileStore.readLine();
+			fileStore.close(); 
+			} catch (IOException e) { 
+				e.printStackTrace(); 
+			} 
+		return record; 
+	}
 }
