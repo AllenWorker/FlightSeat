@@ -72,14 +72,16 @@ public class FXMLDocumentController implements Initializable {
     
     Button[][] btnArry;
     Seat[][] seatArray;
+    @FXML
+    private Button searchBtn;
+    @FXML
+    private Button closeBtn;
     
     @FXML
     private void handleButtonAction(ActionEvent event) throws IOException {
         Button clickBtn = (Button)event.getSource();
         
         Dimension result = searchButton(btnArry, clickBtn);
-        System.out.println(seatArray[result.height][result.width].toString().length());
-        System.out.println(seatArray[result.height][result.width].toString());
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Input.fxml"));
         Parent parent = fxmlLoader.load();
         InputController dialogController = fxmlLoader.<InputController>getController();
@@ -137,7 +139,6 @@ public class FXMLDocumentController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         readData();
         initialButtonArray();
-        System.out.println(seatArray.toString().length());
     } 
     
     public void initialButtonArray()
@@ -316,6 +317,39 @@ public class FXMLDocumentController implements Initializable {
         }
         
     }
+    public void saveData()
+    {
+        try
+        {
+            FileOutputStream outputFile = new FileOutputStream("savedata.dat");
+            ObjectOutputStream outputObj = new ObjectOutputStream(outputFile);
+            outputObj.writeObject(seatArray);
+            outputObj.close();
+            outputFile.close();
+        }
+        catch (IOException i)
+        {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Saving Data Filed!");
+            alert.setHeaderText(null);
+            alert.setContentText("Filed to save savedata.dat!");
+            alert.showAndWait();
+        }
+    }
+    
+    @FXML
+    private void searchBtnAction(ActionEvent event) throws IOException
+    {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Search.fxml"));
+        Parent root = (Parent)fxmlLoader.load();          
+        SearchController controller = fxmlLoader.<SearchController>getController();
+        
+        controller.setSeatArray(seatArray);
+        Scene scene = new Scene(root);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.show();
+    }
     
     private static void writeToRandomAccessFile(File file, int position, String record) { 
 		try { 
@@ -345,4 +379,11 @@ public class FXMLDocumentController implements Initializable {
 			} 
 		return record; 
 	}
+    @FXML
+    private void handleCloseBtnAction(ActionEvent event) {
+        saveData();
+        Stage stage = (Stage) closeBtn.getScene().getWindow();
+   
+        stage.close();
+    }
 }
